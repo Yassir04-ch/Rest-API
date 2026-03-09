@@ -1,0 +1,45 @@
+services:
+  backend:
+    build: .
+    container_name: walletAPI
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - mysql
+    networks:
+      - app_network
+
+  mysql:
+    image: mysql:8.0
+    container_name: wallet_api
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: api_wallet
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - app_network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: wallet
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: root
+      PMA_PASSWORD: root
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+    networks:
+      - app_network
+
+volumes:
+  mysql_data:
+
+networks:
+  app_network:
+    driver: bridge
