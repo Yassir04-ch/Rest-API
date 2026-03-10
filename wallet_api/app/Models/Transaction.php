@@ -8,7 +8,7 @@ class Transaction extends Model
 {
     protected $fillable = ['type','wallet_id','amount','to_wallet_id'];
 
-    public function wallets(){
+    public function wallet(){
     return $this->belongsTo(Wallet::class);
     }
 
