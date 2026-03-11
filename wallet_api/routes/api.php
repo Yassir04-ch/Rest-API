@@ -9,9 +9,12 @@ Route::post('/register',[AuthController::class,'store']);
 Route::post('/login',[AuthController::class,'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('transactions', TransactionController::class);
     Route::apiResource('wallets', WalletController::class);
-    Route::post('/wallets/{id}/deposit',[TransactionController::class,'deposit']);
-    Route::post('/wallets/{id}/withdraw',[TransactionController::class,'withdraw']);
-    Route::post('/wallets/{id}/transfer',[TransactionController::class,'transfer']);
-    Route::get('/wallets/{id}/transactions',[TransactionController::class,'history']);
+    Route::post('/wallets/withdraw',[TransactionController::class,'withdraw']);
+    Route::post('/wallets/deposit',[TransactionController::class,'deposit']);
+    Route::post('/wallets/transfer',[TransactionController::class,'transfer']);
     });
+Route::get('/cheklogin',[AuthController::class,'index'])->name('login');
+Route::post('/logout',[AuthController::class,'logout']);
+

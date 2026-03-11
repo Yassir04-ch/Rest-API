@@ -18,8 +18,7 @@ class TransactionResource extends JsonResource
             'id' => $this->id,
             'wallet_id'=> $this->wallet_id,
             'type'=>$this->type,
-            'amount' => $this->currency,
-            'balance' => $this->balance,
+            'amount' => $this->amount,
             'to_wallet_id'=> $this->to_wallet_id,
             'wallet' => new WalletResource($this->whenLoaded('wallet')),
         ];
