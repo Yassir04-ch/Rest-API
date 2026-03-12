@@ -40,11 +40,12 @@ use Illuminate\Contracts\Validation\Validator;
 
     public function failedValidation(Validator $validator)
     {
-        throw new HttpResponseException(response()->json([
+       $response = response()->json([
             "success" => false,
             "message" => "Erreur de validation.",
             "errors" => $validator->errors()
-        ], 422));
+        ], 422);
+            throw new HttpResponseException($response);
     }
 
 }

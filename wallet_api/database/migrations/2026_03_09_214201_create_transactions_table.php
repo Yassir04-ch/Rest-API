@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('wallet_id')->nullable()->constrained('wallets')->nullOnDelete();
             $table->enum('type',['deposit','withdraw','transfer_in','transfer_out']);
+            $table->string('description');
             $table->decimal('amount',10,2);
             $table->decimal('balance_after',10,2);
             $table->foreignId('receiver_wallet_id')->nullable()->constrained('wallets')->nullOnDelete();

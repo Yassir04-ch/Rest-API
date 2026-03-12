@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->decimal('balance',10,2)->default(0);
-            $table->string('currency');
+            $table->enum('currency',['MAD','USD','EUR']);
             $table->timestamps();
         });
     }

@@ -73,5 +73,18 @@ use Illuminate\Support\Facades\Auth;
             'message' => 'Déconnexion réussie.'
         ], 200);
     }
+
+    public function profile(Request $request){
+
+        $user = $request->user();
+
+        return response()->json([
+            "success" => true,
+            "message" => "Profil utilisateur récupéré.",
+            "data" => [
+                "user" => $user
+            ]
+        ], 200);
+    }
         
     }

@@ -17,14 +17,16 @@ class WalletController extends Controller
      */
     public function index()
     {
-        $wallet = WalletResource::collection(Wallet::with('transactions')->with('user')->where('user_id',Auth::id())->get());
-        return response()->json([
-          'status'=>'success',
-          'data'=>$wallet
-        ],200);
-        
-    }
+        $wallets = Wallet::with('transactions')->where('user_id', Auth::id())->get();
 
+        return response()->json([
+            'success' => true,
+            'message' => 'Liste des wallets récupérée.',
+            'data' => [
+                'wallets' => WalletResource::collection($wallets)
+            ]
+        ], 200);
+    }
     /**
      * Store a newly created resource in storage.
      */
@@ -33,8 +35,8 @@ class WalletController extends Controller
         $validated = $request->validated();
 
         $validated['user_id'] = Auth::id();
+        $validated['balance'] = 0.00;
         $wallet = Wallet::create($validated);
-        $wallet->load('transactions');
         return response()->json([
         'status' => 'success',
         'message' => 'wallet créé avec succès',
@@ -47,7 +49,30 @@ class WalletController extends Controller
      */
     public function show(string $id)
     {
-        //
+       $wallet = Wallet::find($id);
+
+      if(!$wallet){
+        return response()->json([
+            'success' => false,
+            'message' => 'Wallet introuvable.'
+        ], 404);
+      }
+
+      if ($wallet->user_id !== Auth::id()) {
+        return response()->json([
+            'success' => false,
+            'message' => "Vous n'êtes pas autorisé à accéder à ce wallet."
+        ], 403);
+      }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Détail du wallet récupéré.',
+            'data' => [
+                'wallets' => new WalletResource($wallet)
+            ]
+        ], 200);
+        
     }
 
     /**

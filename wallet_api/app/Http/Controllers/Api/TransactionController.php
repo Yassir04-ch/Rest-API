@@ -30,47 +30,56 @@ class TransactionController extends Controller
      */
    
 
-    public function deposit(StoreTransactionRequest $request)
+    public function deposit(StoreTransactionRequest $request,string $id)
     {
      $validated = $request->validated();
-
-     $wallet = Wallet::where('id',$validated['wallet_id'])->first();
+     $wallet = Wallet::where('id',$id)->first();
+    
      $balance = $wallet->balance + $validated['amount'];
      $wallet->update(['balance'=>$balance ]);
 
+      $validated['type'] = 'deposit';
+      $validated['wallet_id'] = $wallet->id;
+      $validated['balance_after'] = $balance;
       $transaction = Transaction::create($validated);
+
       $transaction->load('wallet');
         return response()->json([
-        'status' => 'success',
-        'message' => 'Transaction créé avec succès',
-        'data' => $transaction
+        'status' => true,
+        'message' => 'Dépôt effectué avec succès.',
+        'data' =>new TransactionResource($transaction)
         ], 201);
     }
 
     
-    public function withdraw(StoreTransactionRequest $request){
-
+   public function withdraw(StoreTransactionRequest $request,string $id)
+    {
      $validated = $request->validated();
+     $wallet = Wallet::where('id',$id)->first();
 
-     $wallet = Wallet::where('id',$validated['wallet_id'])->first();
-     if($wallet->balance < $validated['amount']){
+      if($wallet->balance < $validated['amount']){
         return response()->json([
-        'status' => 'errur',
-        'message' => 'balance de wallet est insifisont'
+        'success' => false,
+        'message' => 'Solde insuffisant. Solde actuel : '.$wallet->balance
         ],422);
      }
-     
+    
      $balance = $wallet->balance - $validated['amount'];
      $wallet->update(['balance'=>$balance ]);
 
+      $validated['type'] = 'withdraw';
+      $validated['wallet_id'] = $wallet->id;
+      $validated['balance_after'] = $balance;
       $transaction = Transaction::create($validated);
+
       $transaction->load('wallet');
         return response()->json([
-        'status' => 'success',
-        'message' => 'Transaction créé avec succès',
-        'data' => $transaction
+        'status' => true,
+        'message' => 'Retrait effectué avec succès',
+        'data' =>new TransactionResource($transaction)
         ], 201);
     }
+
 
     public function transfer(StoreTransactionRequest $request){
 

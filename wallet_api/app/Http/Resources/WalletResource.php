@@ -16,10 +16,15 @@ class WalletResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'user_id' => $this->user_id,
+            'name' => $this->name,
+            'currency' => $this->currency,
             'balance' => $this->balance,
-            'devise' => $this->devise,
+            'created_at' =>$this->created_at,
+            'updated_at' =>$this->updated_at,
             'transactions' => TransactionResource::collection($this->whenLoaded('transactions')),
             'user' => $this->whenLoaded('user'),
+
 
         ];
     }

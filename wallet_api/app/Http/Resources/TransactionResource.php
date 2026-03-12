@@ -14,13 +14,16 @@ class TransactionResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return [
-            'id' => $this->id,
-            'wallet_id'=> $this->wallet_id,
-            'type'=>$this->type,
-            'amount' => $this->amount,
-            'to_wallet_id'=> $this->to_wallet_id,
-            'wallet' => new WalletResource($this->whenLoaded('wallet')),
+         return [
+            "id" => $this->id,
+            "wallet_id" => $this->wallet_id,
+            "type" => $this->type,
+            "amount" => $this->amount,
+            "description" => $this->description,
+            "balance_after" => $this->balance_after,
+            "created_at" => $this->created_at,
+            "wallet"=>new WalletResource($this->whenLoaded('wallet'))
         ];
     }
+    
 }
