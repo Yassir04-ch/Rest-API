@@ -13,10 +13,11 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
-            $table->string('type');
+            $table->enum('type',['deposit','withdraw','transfer_in','transfer_out']);
             $table->decimal('amount',10,2);
-            $table->foreignId('wallet_id')->constrained();
-            $table->foreignId('to_wallet_id')->nullable();
+            $table->decimal('balance_after',10,2);
+            $table->foreignId('receiver_wallet_id')->nullable()->constrained('wallets')->nullOnDelete();
+            $table->foreignId('send_wallet_id')->nullable()->constrained('wallets')->nullOnDelete();
             $table->timestamps();
         });
     }

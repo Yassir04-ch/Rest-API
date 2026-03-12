@@ -14,7 +14,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/wallets/withdraw',[TransactionController::class,'withdraw']);
     Route::post('/wallets/deposit',[TransactionController::class,'deposit']);
     Route::post('/wallets/transfer',[TransactionController::class,'transfer']);
+    Route::post('/logout',[AuthController::class,'logout']);
     });
 Route::get('/cheklogin',[AuthController::class,'index'])->name('login');
-Route::post('/logout',[AuthController::class,'logout']);
 

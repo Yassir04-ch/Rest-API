@@ -30,43 +30,48 @@ use Illuminate\Support\Facades\Auth;
 
             $user = User::create($validated);
             $token = $user->createToken('token_api')->plainTextToken;
-            return response()->json([
-                'status'=>'success',
-                'data'=>$user,
-                'token'=>$token
-            ],201);
+          return response()->json([
+            "success" => true,
+            "message" => "Inscription réussie.",
+            "data" => [
+                "user" => $user,
+                "token" => $token
+            ]
+        ], 201);
         }
 
-    public function login(LoginRequest $request){
+        public function login(LoginRequest $request)
+        {
+            $credentials = $request->validated();
 
-        $login = $request->validated();
+            if (Auth::attempt($credentials)) {
 
-        if (Auth::attempt($login)) {
-              
-            $token = $request->user()->createToken('token_api')->plainTextToken;
-            return response()->json([
-                'status'=>'success',
-                'user' => Auth::user(),
-                'token' => $token
+                $user = Auth::user();
+                $token = $user->createToken('token_api')->plainTextToken;
+
+                return response()->json([
+                    "success" => true,
+                    "message" => "Connexion réussie.",
+                    "data" => [
+                        "user" => $user,
+                        "token" => $token
+                    ]
                 ], 200);
             }
-        else{
-                  return response()->json([
-                    'status' => 'errur'
-                    ], 401);
-            }
+
+            return response()->json([
+                "success" => false,
+                "message" => "Identifiants incorrects."
+            ], 401);
         }
 
-        public function logout(Request $request){
-        dd(auth()->user());
-         $request->user()->tokens()->delete();
-        
-         return response()->json([
-        'status' => 'success',
-        'message' => 'Logout id success'
-         ], 200);
+      public function logout(Request $request){
+        $request->user()->tokens()->delete();
 
-        }
-
+        return response()->json([
+            'success' => true,
+            'message' => 'Déconnexion réussie.'
+        ], 200);
+    }
         
     }
