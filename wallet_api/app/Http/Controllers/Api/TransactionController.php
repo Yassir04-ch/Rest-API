@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTransactionRequest;
 use App\Http\Resources\TransactionResource;
+use App\Http\Resources\WalletResource;
 use App\Models\Transaction;
 use App\Models\Wallet;
 use Illuminate\Http\JsonResponse;
@@ -81,17 +82,25 @@ class TransactionController extends Controller
     }
 
 
-    public function transfer(StoreTransactionRequest $request){
+    public function transfer(StoreTransactionRequest $request,string $id){
 
-     $validated = $request->validated();
+      $validated = $request->validated();
 
-      $wallet1 = Wallet::where('id',$validated['wallet_id'])->first();
-     $wallet2 = Wallet::where('id',$validated['to_wallet_id'])->first();
-     if($wallet1->balance < $validated['amount']){
+      $wallet1 = Wallet::where('id',$id)->first();
+      $wallet2 = Wallet::where('id',$validated['receiver_wallet_id'])->first();
+
+      if ($wallet1->currency !== $wallet2->currency) {
         return response()->json([
-        'status' => 'errur',
-        'message' => 'balance de wallet est insifisont'
-        ],422);
+            "success" => false,
+            "message" => "Transfert impossible : les deux wallets doivent avoir la même devise."
+        ], 400);
+     }
+
+     if($wallet1->balance < $validated['amount']){
+         return response()->json([
+            "success" => false,
+            "message" => "Solde insuffisant. Solde actuel : ".$wallet1->balance ." ". $wallet1->currency
+        ], 400);
      }
      
      $balance1 = $wallet1->balance - $validated['amount'];
@@ -99,13 +108,34 @@ class TransactionController extends Controller
      $wallet1->update(['balance'=>$balance1 ]);
      $wallet2->update(['balance'=>$balance2 ]);
 
-      $transaction = Transaction::create($validated);
-      $transaction->load(['wallet','toWallet']);
-        return response()->json([
-        'status' => 'success',
-        'message' => 'argent est transfer avec success',
-        'data' => $transaction
-        ], 201);
+    $transactionOut = Transaction::create([
+            'wallet_id' => $wallet1->id,
+            'type' => 'transfer_out',
+            'amount' => $validated['amount'],
+            'description' => $validated['description'],
+            'balance_after' => $wallet1->balance,
+            'receiver_wallet_id' => $wallet2->id
+        ]);   
+        
+     $transactionIn = Transaction::create([
+        'wallet_id' => $wallet2->id,
+        'type' => 'transfer_in',
+        'amount' => $validated['amount'],
+        'description' => $validated['description'],
+        'balance_after' => $wallet2->balance,
+        'send_wallet_id' => $wallet1->id
+    ]);
+
+     return response()->json([
+        "success" => true,
+        "message" => "Transfert effectué avec succès.",
+        "data" => [
+            "transaction_out" => new TransactionResource($transactionOut),
+            "transaction_in" => new TransactionResource($transactionIn),
+            "wallet" => new WalletResource($wallet1)
+        ]
+    ], 200);
+      
     }
 
     
