@@ -8,13 +8,14 @@ use App\Http\Resources\TransactionResource;
 use App\Http\Resources\WalletResource;
 use App\Models\Transaction;
 use App\Models\Wallet;
-use Illuminate\Http\JsonResponse;
+ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class TransactionController extends Controller
 {
 
-    public function deposit(StoreTransactionRequest $request,string $id)
+    public function deposit(StoreTransactionRequest $request,string $id):JsonResponse
     {
      $validated = $request->validated();
      $wallet = Wallet::where('id',$id)->first();
@@ -36,7 +37,7 @@ class TransactionController extends Controller
     }
 
     
-   public function withdraw(StoreTransactionRequest $request,string $id)
+   public function withdraw(StoreTransactionRequest $request,string $id):JsonResponse
     {
      $validated = $request->validated();
      $wallet = Wallet::where('id',$id)->first();
@@ -65,7 +66,8 @@ class TransactionController extends Controller
     }
 
 
-    public function transfer(StoreTransactionRequest $request,string $id){
+    public function transfer(StoreTransactionRequest $request,string $id):JsonResponse
+    {
 
       $validated = $request->validated();
 
@@ -122,16 +124,29 @@ class TransactionController extends Controller
     }
 
 
-    public function history(string $id){
-        $transactions = Transaction::where('wallet_id',$id)->paginate();
+    public function history(string $id):JsonResponse
+    {
+         $wallet = Wallet::find($id);
+         if($wallet->user_id != Auth::id()){
+             return response()->json([
+            "success" => false,
+            "message" => "Vous n'êtes pas autorisé à effectuer cette action."
+           ], 403);
+         }
+        
+        $transactions = Transaction::where('wallet_id',$id)->paginate(15);;
         return response()->json([
             "success"=>true,
             "message"=> "Historique des transactions récupéré.",
             "data" => [
-              "transactions"=>  $transactions,
-              "pagination" => 
-
-              ]
+              "transactions"=>  $transactions->items(),
+               "pagination" => [
+                "current_page" => $transactions->currentPage(),
+                "last_page" => $transactions->lastPage(),
+                "per_page" => $transactions->perPage(),
+                "total" => $transactions->total()
+            ]
+          ]
         ],200);
     }
 
