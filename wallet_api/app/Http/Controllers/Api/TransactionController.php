@@ -13,23 +13,6 @@ use Illuminate\Http\Request;
 
 class TransactionController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(): JsonResponse
-    {
-        $transactions = TransactionResource::collection(Transaction::with('wallet')->get());
-        return response()->json([
-            'status'=>'success',
-            'data'=>$transactions,
-        ],200);
-       
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-   
 
     public function deposit(StoreTransactionRequest $request,string $id)
     {
@@ -136,6 +119,20 @@ class TransactionController extends Controller
         ]
     ], 200);
       
+    }
+
+
+    public function history(string $id){
+        $transactions = Transaction::where('wallet_id',$id)->paginate();
+        return response()->json([
+            "success"=>true,
+            "message"=> "Historique des transactions récupéré.",
+            "data" => [
+              "transactions"=>  $transactions,
+              "pagination" => 
+
+              ]
+        ],200);
     }
 
     

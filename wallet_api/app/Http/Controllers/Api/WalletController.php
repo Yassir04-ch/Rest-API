@@ -36,9 +36,9 @@ class WalletController extends Controller
 
         $validated['user_id'] = Auth::id();
         $validated['balance'] = 0.00;
-        $wallet = Wallet::create($validated);
+         $wallet = Wallet::create($validated);
         return response()->json([
-        'status' => 'success',
+        'success' => true,
         'message' => 'wallet créé avec succès',
         'data' => $wallet
         ], 201);

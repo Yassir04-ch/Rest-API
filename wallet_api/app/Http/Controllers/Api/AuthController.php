@@ -15,9 +15,10 @@ use Illuminate\Support\Facades\Auth;
         public function index()
         {
         return response()->json([
-                'status'=>'error',
-                'message'=>'you are not login'
+                'success'=>false,
+                'message'=>'Non authentifié.'
             ],403);   
+            
         }
 
         /**
